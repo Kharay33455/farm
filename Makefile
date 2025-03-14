@@ -1,0 +1,1 @@
+g++ setup.c shooter.c -o saver.exe -I"C:/libjpeg-turbo-gcc/include" -L"C:/libjpeg-turbo-gcc/lib" -ljpeg -lgdi32 -mconsole
