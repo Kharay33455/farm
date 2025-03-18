@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "name": "x86-Release",
+      "inheritEnvironments": [
+        "msvc_x86"
+      ],
+      "includePath": [
+        "${env.INCLUDE}",
+        "${workspaceRoot}\\**",
+        "C:\\path\\to\\libjpeg\\include" // Add this path for the JPEG headers
+      ],
+      "defines": [
+        "WIN32",
+        "NDEBUG",
+        "UNICODE",
+        "_UNICODE"
+      ],
+      "intelliSenseMode": "windows-msvc-x86",
+      "browse": {
+        "path": [
+          "${workspaceFolder}/**",
+          "C:\\path\\to\\libjpeg\\include" // Add this path for browsing headers
+        ]
+      }
+    }
+  ]
+}

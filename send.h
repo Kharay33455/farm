@@ -1,0 +1,1 @@
+int xender(const char *filename, char logger[]);

