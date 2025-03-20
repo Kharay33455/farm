@@ -131,6 +131,7 @@ void CaptureScreen(const char* filename, int quality, char logger[]) {
 
     printf("Screenshot saved as %s\n", filename);
 
+    // make this async
     xender(filename, logger);
 
 }
