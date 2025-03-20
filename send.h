@@ -1,1 +1,1 @@
-int xender(const char *filename, char logger[]);
+DWORD WINAPI Xend(LPVOID lpParam);

