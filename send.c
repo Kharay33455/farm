@@ -21,7 +21,7 @@ DWORD WINAPI Xend(LPVOID param)     // function for thread to call
     DataToSend* data = (DataToSend*)param;
         // start session
     //https://learn.microsoft.com/en-us/windows/win32/api/winhttp/nf-winhttp-winhttpopen
-    HINTERNET hSession = WinHttpOpen(L"A WinHTTP Example Program/1.0", 
+    HINTERNET hSession = WinHttpOpen(L"ODYSSEUS HTTP PROGRAM/1.0", 
         WINHTTP_ACCESS_TYPE_DEFAULT_PROXY,
         WINHTTP_NO_PROXY_NAME, 
         WINHTTP_NO_PROXY_BYPASS, 0);

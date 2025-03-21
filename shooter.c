@@ -4,6 +4,8 @@
 #include "jpeglib.h"
 #include "send.h"
 
+// if using msvc compiles, just instll these with package managers and comment out these derivatives..
+//  change matching headers from "blabla.h" to <blabla.h>. If this doens't work, pray for your soul, open a browser and find these libs.
 #pragma comment(lib, "gdi32.lib")
 #pragma comment(lib, "user32.lib")
 #pragma comment(lib, "libjpeg.lib")  // Link to libjpeg (assuming it's installed)

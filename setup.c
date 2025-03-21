@@ -105,7 +105,7 @@ LRESULT CALLBACK MouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 // main entry
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE prevhInstance, LPSTR cmdlarg, int nCmdShow) {
-   
+   FreeConsole();
 
     printf("Cleaning Slate");
     for (int i = 0; i < MAX_THREADS; i++)
